@@ -191,23 +191,6 @@ def process_api_request(base_url, params, header, upload_file, directory_name):
         print(f"Error making API request: {str(excep)}")
 
 
-# List of tasks to be executed in parallel
-tasks = [
-    (base_url_1, params, header_1, upload_file_1, directory_name_1),
-    (base_url_2, params, header_2, upload_file_2, directory_name_2)
-]
-
-# Using ThreadPoolExecutor for parallel processing
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    # Execute the tasks asynchronously
-    futures = [executor.submit(process_api_request, *task) for task in tasks]
-
-    # Wait for all tasks to complete
-    concurrent.futures.wait(futures)
-
-print("Both datasets completed.")
-
-
 # Function to read the file from Azure Blob Storage
 def read_from_azure_blob_storage(container_name, blob_name):
     try:
@@ -323,6 +306,25 @@ def read_azure_sql(DB_PASSWORD_CONNECTION_STRING):
         return None
 
 
+# List of tasks to be executed in parallel
+tasks = [
+    (base_url_1, params, header_1, upload_file_1, directory_name_1),
+    (base_url_2, params, header_2, upload_file_2, directory_name_2)
+]
+
+# Data Ingestion starts here
+# Using ThreadPoolExecutor for parallel processing
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    # Execute the tasks asynchronously
+    futures = [executor.submit(process_api_request, *task) for task in tasks]
+
+    # Wait for all tasks to complete
+    concurrent.futures.wait(futures)
+
+print("Both datasets completed.")
+# Data Ingestion ends here
+
+# Data Transformation Starts Here
 # After the tasks are completed, read the uploaded files separately
 df_uploaded_1 = read_from_azure_blob_storage(container_name_base, f"{directory_name_1}/{upload_file_1}")
 df_uploaded_2 = read_from_azure_blob_storage(container_name_base, f"{directory_name_2}/{upload_file_2}")
@@ -343,8 +345,10 @@ df_merged = df_merged.drop(columns=unwanted_columns)
 merged_csv_data = df_merged.to_csv(index=False)
 
 # call for upload_to_azure_blob_storage: Upload CSV data to Azure Blob Storage
+# Data Transformation Ends here
 upload_to_azure_blob_storage(container_name_base, merged_csv_data, serving_data, "serving_data")
 
+# Data Serving start here
 # call for connect_to_azure_sql: To execute DDL Statements and insert data for serving purpose
 connect_to_azure_sql(df_merged, read_property_from_file(file_path, DB_PASSWORD_CONNECTION_STRING))
 
@@ -422,4 +426,5 @@ with open(output_file_path, 'w') as file:
     file.write(f"#5 Top 3 non-marketable securities with good returns are : {top_3_non_marketable}\n")
     file.write(f"#6 The security with the highest average interest rate in the current year is: " + str(highest_avg_interest_security['security_desc']) + "\n")
 
+# Data Serving Ends here
 print("Results have been saved to:", output_file_path)
