@@ -9,8 +9,8 @@ import seaborn as sns
 from azure.storage.blob import BlobServiceClient
 
 container_name = "f23projectcontainer"
-directory_name_d1 = "raw_data/Average-Interest-Rates-on-U.S.-Treasury Securities"
-directory_name_d2 = "raw_data/U.S.Treasury-Monthly-Statement-of-the-Public-Debt-(MSPD)"
+directory_name_d1 = "processed_data/Average-Interest-Rates-on-U.S.-Treasury Securities"
+directory_name_d2 = "processed_data/U.S.Treasury-Monthly-Statement-of-the-Public-Debt-(MSPD)"
 blob_name_d1 = "interest_rates.csv"
 blob_name_d2 = "debt_statement.csv"
 
@@ -79,9 +79,8 @@ security_counts = data_df1['security_type_desc'].value_counts()
 total_securities = security_counts.sum()
 percentage_marketable = (security_counts['Marketable'] / total_securities) * 100
 percentage_non_marketable = (security_counts['Non-marketable'] / total_securities) * 100
-percentage_Interest_bearing_debt = (security_counts['Interest-bearing Debt'] / total_securities) * 100
 
-print(percentage_marketable, percentage_non_marketable, percentage_Interest_bearing_debt,  security_counts)
+print(percentage_marketable, percentage_non_marketable,  security_counts)
 
 
 data_column = data_df1['avg_interest_rate_amt']
@@ -116,7 +115,7 @@ plt.show()
 # Box Plot
 sns.boxplot(x='security_type_desc', y='avg_interest_rate_amt', data=data_df1)
 plt.title('Box Plot of Average Interest Rates by Security Type')
-plt.xticks(rotation=60)
+plt.xticks(rotation=90)
 plt.show()
 
 # Calculate the count of null values in each column
