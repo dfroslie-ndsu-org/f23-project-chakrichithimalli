@@ -9,12 +9,13 @@ import pyodbc
 from io import StringIO
 
 # Configure the logging for INFO and ERROR Mode
-logging.basicConfig(filename='project_logs/scripts.log', level=logging.INFO,  format ='%(asctime)s - %(levelname)s - %(message)s')
-error_log.basicConfig(filename='project_logs/error.log', level=logging.ERROR,  format ='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='../project_logs/scripts.log', level=logging.INFO, format ='%(asctime)s - %(levelname)s - %(message)s')
+error_log.basicConfig(filename='../project_logs/error.log', level=logging.ERROR, format ='%(asctime)s - %(levelname)s - %(message)s')
 
 # Common Configuration
 container_name_base = "f23projectcontainer"
 file_path = "../../Account_Key.config"
+ddl_script_file_path = "../SQL_Transformation/DDL_scripts.sql"
 
 # Configuration for U.S. Treasury Data holdings
 directory_name_1 = "processed_data/U.S.Treasury-Monthly-Statement-of-the-Public-Debt-(MSPD)"
@@ -56,7 +57,7 @@ mapping_dict = {
 }
 
 # text file for with analysis answers
-output_file_path = "project_logs/analysis_answers.txt"
+output_file_path = "../project_logs/analysis_answers.txt"
 
 # columns to drop
 unwanted_columns = ['src_line_nbr_df1',
@@ -215,54 +216,20 @@ def read_from_azure_blob_storage(container_name, blob_name):
         print(f"Error reading from Azure Blob Storage: {str(excep)}")
 
 
-def connect_to_azure_sql(df_merged, DB_PASSWORD_CONNECTION_STRING):
-
-    # SQL commands to be executed
-    query_1 = '''
-        IF NOT EXISTS (SELECT schema_id FROM sys.schemas WHERE name = 'f23_project')
-            EXEC('CREATE SCHEMA f23_project;');
-
-        IF OBJECT_ID('f23_project.US_Treasury_details', 'U') IS NOT NULL
-            DROP TABLE f23_project.US_Treasury_details;
-        
-        IF EXISTS (SELECT 1 FROM sys.sequences WHERE name = 'US_Treasury_details_sequence' AND schema_id = SCHEMA_ID('f23_project'))
-            DROP SEQUENCE f23_project.US_Treasury_details_sequence ;    
-    
-        --Creating sequence for US_Treasury_details
-    CREATE SEQUENCE f23_project.US_Treasury_details_sequence
-        INCREMENT BY 1
-        MINVALUE 1
-        MAXVALUE 1000000
-        START WITH 1;
-        
-    -- Creating table US_Treasury_details
-    CREATE TABLE f23_project.US_Treasury_details (
-        id BIGINT PRIMARY KEY DEFAULT NEXT VALUE FOR f23_project.US_Treasury_details_sequence,
-        record_date DATE,
-        security_type_desc varchar(30),
-        security_desc varchar(100),
-        avg_interest_rate_amt FLOAT,  -- Adjusted precision and scale
-        record_fiscal_year_df2 int,
-        record_fiscal_quarter_df2 int,
-        record_calendar_year_df2 int,
-        record_calendar_quarter_df2 int,
-        record_calendar_month_df2 int,
-        record_calendar_day_df2 int,
-        debt_held_public_mil_amt FLOAT,
-        intragov_hold_mil_amt FLOAT,
-        total_mil_amt FLOAT
-    );
-    '''
+def connect_to_azure_sql(ddl_script_file_path, df_merged, DB_PASSWORD_CONNECTION_STRING):
 
     try:
-        logging.info("trying to execute the required DDL statement for the database")
+        logging.info("reading the required DDL statements from "+ ddl_script_file_path)
+
+        with open(ddl_script_file_path, 'r') as script_file:
+            ddl_script = script_file.read()
+
         # Connect to the Azure SQL Database
         with pyodbc.connect(DB_PASSWORD_CONNECTION_STRING) as connection:
             cursor = connection.cursor()
-
-            cursor.execute(query_1)
+            cursor.execute(ddl_script)
             connection.commit()
-
+            logging.info("executing the required DDL statement for the database")
             # Iterate through the DataFrame and insert rows into the SQL table
             query = """
                 INSERT INTO f23_project.US_Treasury_details (
@@ -290,6 +257,7 @@ def connect_to_azure_sql(df_merged, DB_PASSWORD_CONNECTION_STRING):
         return None
 def read_azure_sql(DB_PASSWORD_CONNECTION_STRING):
     try:
+        logging.info("Reading the data from the Azure SQL database")
         # Connect to the Azure SQL Database
         with pyodbc.connect(DB_PASSWORD_CONNECTION_STRING) as connection:
             # Query to retrieve data from the table
@@ -350,7 +318,7 @@ upload_to_azure_blob_storage(container_name_base, merged_csv_data, serving_data,
 
 # Data Serving start here
 # call for connect_to_azure_sql: To execute DDL Statements and insert data for serving purpose
-connect_to_azure_sql(df_merged, read_property_from_file(file_path, DB_PASSWORD_CONNECTION_STRING))
+connect_to_azure_sql(ddl_script_file_path, df_merged, read_property_from_file(file_path, DB_PASSWORD_CONNECTION_STRING))
 
 # call for read_azure_sql: Reads the serving_data from AzureSQL Database
 analysis_df = read_azure_sql(read_property_from_file(file_path, DB_PASSWORD_CONNECTION_STRING))
