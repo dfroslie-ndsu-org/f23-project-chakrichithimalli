@@ -384,15 +384,27 @@ average_interest_security_non_marketable = non_marketable_data_last_two_years.gr
 top_3_marketable = average_interest_security_marketable.nlargest(3).index.to_list()
 top_3_non_marketable = average_interest_security_non_marketable.nlargest(3).index.to_list()
 
+# Calculating the overall average interest return for 'Marketable' securities
+average_return_marketable_all = analysis_df.loc[analysis_df['security_type_desc'] == 'Marketable', 'avg_interest_rate_amt'].mean()
+
+# Calculating the overall average interest return for 'Non-marketable' securities
+average_return_non_marketable_all = analysis_df.loc[analysis_df['security_type_desc'] == 'Non-marketable', 'avg_interest_rate_amt'].mean()
+
+if average_return_marketable_all > average_return_non_marketable_all:
+    highest_interest_category = 'Marketable'
+else:
+    highest_interest_category = 'Non-Marketable'
+
 # getting the answers to a text file for the questions from Business solution
 with open(output_file_path, 'w') as file:
     file.write("#1 Which category has more holdings: " + str(max_holding_category) + "\n")
     file.write("#2 Which category has more public holdings: " + str(max_public_holding_category) + "\n")
-    file.write(f"#3 The average interest return for 'Marketable' securities in the last 2 years is: {average_interest_marketable}\n")
-    file.write(f"#3 The average interest return for 'Non-marketable' securities in the last 2 years is: {average_interest_non_marketable}\n")
-    file.write(f"#4 Top 3 marketable securities with good returns are : {top_3_marketable}\n")
-    file.write(f"#5 Top 3 non-marketable securities with good returns are : {top_3_non_marketable}\n")
-    file.write(f"#6 The security with the highest average interest rate in the current year is: " + str(highest_avg_interest_security['security_desc']) + "\n")
+    file.write(f"#3 Which category has good average tracks of returns(interest): " + str(highest_interest_category) + "\n")
+    file.write(f"#4 The average interest return for 'Marketable' securities in the last 2 years is: {average_interest_marketable}\n")
+    file.write(f"#5 The average interest return for 'Non-marketable' securities in the last 2 years is: {average_interest_non_marketable}\n")
+    file.write(f"#6 Top 3 marketable securities with good returns are : {top_3_marketable}\n")
+    file.write(f"#7 Top 3 non-marketable securities with good returns are : {top_3_non_marketable}\n")
+    file.write(f"#8 The security with the highest average interest rate in the current year is: " + str(highest_avg_interest_security['security_desc']) + "\n")
 
 # Data Serving Ends here
 print("Results have been saved to:", output_file_path)
