@@ -1,7 +1,8 @@
 #1 Which category has more holdings: Marketable
 #2 Which category has more public holdings: Marketable
-#3 The average interest return for 'Marketable' securities in the last 2 years is: 2.3869097222222226
-#3 The average interest return for 'Non-marketable' securities in the last 2 years is: 4.121892857142857
-#4 Top 3 marketable securities with good returns are : ['Treasury Floating Rate Notes (FRN)', 'Treasury Bills', 'Treasury Bonds']
-#5 Top 3 non-marketable securities with good returns are : ['Domestic Series', 'Foreign Series', 'United States Savings Securities']
-#6 The security with the highest average interest rate in the current year is: Domestic Series
+#3 Which category has good average tracks of returns(interest): Non-Marketable
+#4 The average interest return for 'Marketable' securities in the last 2 years is: 2.3869097222222226
+#5 The average interest return for 'Non-marketable' securities in the last 2 years is: 4.121892857142857
+#6 Top 3 marketable securities with good returns are : ['Treasury Floating Rate Notes (FRN)', 'Treasury Bills', 'Treasury Bonds']
+#7 Top 3 non-marketable securities with good returns are : ['Domestic Series', 'Foreign Series', 'United States Savings Securities']
+#8 The security with the highest average interest rate in the current year is: Domestic Series
