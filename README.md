@@ -98,9 +98,9 @@ The data serving process is outlined as follows:
       - After the script got successfully ran, the answers to the questions gets saved in the analysis_answers.txt file.
       - The database server name and other following credentials need to be used to connect the Azure SQL database in Power Bi and the file in the project can be used for getting the visual on the latest data.
 3. **An overview of how the code is structured in the repo**
-    - The src/data_engineering folder contains scripts for data engineering and exploratory analysis.
+    - The src/ingestion folder contains scripts for data engineering(DataEngineering_Script.py) and exploratory analysis(ExploratoryAnalysis.py).
     - src/project_logs stores error logs in the error.log file.
     - src/project_logs stores the info logs in the scripts.log file.
     - src/project_logs stores the answers for the business problem in analysis_answers.txt file.
     - src/SQL_Transformation includes the DDL_scripts.sql file.
-    - The SupplementaryInfo/IngestionAnalysis folder holds evidence related to the project's architecture diagram, serving_data file, exploratory analysis documents, power bi visualization file and resources.
+    - The SupplementaryInfo/IngestionAnalysis folder holds evidence related to the project's architecture diagram, serving_data file, exploratory analysis documents, power bi visualization file(U.S.Treasury_Interest_Rates.pbix) and resources.
