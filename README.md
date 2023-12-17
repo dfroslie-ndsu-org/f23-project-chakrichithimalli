@@ -84,6 +84,9 @@ The data serving process is outlined as follows:
 2. **Azure Data Studio**
     - Used for accessing the Azure SQL database and checking the data tables and data.
 
+## U.S. Treasury Interest Rates project's architecture
+![Project's_Architecture.png](SupplementaryInfo%2FIngestionAnalysis%2FProject%27s_Architecture.png)
+
 ## Implementation details
 1. **What cloud resources would be required to reproduce the work?**
     - Azure Cloud resources include a resource group, storage account, Azure SQL database, Azure SQL server, and Key Vault.
